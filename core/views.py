@@ -37,17 +37,11 @@ class CurrencyConverterView(ViewSet):
         target_currency = request.data.get('target_currency')
         val = request.data.get('value', 1)
 
-        serializer = CurrencyChangeRequestSerializer(data=request.data)
+        serializer = CurrencyChangeRequestSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid(raise_exception=True):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        instance, created = CurrencyChangeRequest.objects.get_or_create(
-            source_currency=source_currency,
-            target_currency=target_currency,
-        )
-        if not created:
-            instance.number_of_requests = instance.number_of_requests + 1
-            instance.save()
+        serializer.save()
 
         res = Utils.get_latest_exchange_rates(source_currency, target_currency, val)
         return Response({'res': res}, status=status.HTTP_200_OK)

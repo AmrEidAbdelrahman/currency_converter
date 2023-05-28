@@ -12,6 +12,21 @@ class CurrencyChangeRequestSerializer(serializers.ModelSerializer):
 
         return data
 
+    def create(self, validated_data):
+        ModelClass = self.Meta.model
+        user = self.context.get('request').user
+
+        instance, created = ModelClass.objects.get_or_create(
+            source_currency=validated_data['source_currency'],
+            target_currency=validated_data['target_currency'],
+            user=user
+        )
+        if not created:
+            instance.number_of_requests = instance.number_of_requests + 1
+            instance.save()
+
+        return instance
+
     class Meta:
         model = CurrencyChangeRequest
-        fields = "__all__"
+        exclude = ['user']

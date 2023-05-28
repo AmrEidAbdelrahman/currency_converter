@@ -12,6 +12,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework import status
 
+from core.serializers import CurrencyChangeRequestSerializer
 from core.services.utils import Utils
 
 
@@ -32,16 +33,13 @@ class CurrencyConverterView(ViewSet):
     )
     @action(detail=True, methods=['post'])
     def convert_currency(self, request):
-        available_currency = ['usd', 'eur', 'egp']
         source_currency = request.data.get('source_currency')
         target_currency = request.data.get('target_currency')
         val = request.data.get('value', 1)
-        if val <= 0:
-            return Response({'error': 'value must be greater than 0.'}, status=status.HTTP_400_BAD_REQUEST)
-        if source_currency not in available_currency:
-            return Response({'error': "source_currency must be in ['usd', 'eur', 'egp']."}, status=status.HTTP_400_BAD_REQUEST)
-        if target_currency not in available_currency:
-            return Response({'error': "target_currency must be in ['usd', 'eur', 'egp']."}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = CurrencyChangeRequestSerializer(data=request.data)
+        if not serializer.is_valid(raise_exception=True):
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         instance, created = CurrencyChangeRequest.objects.get_or_create(
             source_currency=source_currency,

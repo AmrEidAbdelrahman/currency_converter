@@ -37,7 +37,7 @@ class CurrencyConverterView(ViewSet):
         target_currency = request.data.get('target_currency')
         val = request.data.get('value', 1)
 
-        serializer = CurrencyChangeRequestSerializer(data=request.data, context={'request': request})
+        serializer = CurrencyChangeRequestSerializer(data=request.data, context={'user': request.user})
         if not serializer.is_valid(raise_exception=True):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

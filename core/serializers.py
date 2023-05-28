@@ -14,7 +14,7 @@ class CurrencyChangeRequestSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         ModelClass = self.Meta.model
-        user = self.context.get('request').user
+        user = self.context.get('user')
 
         instance, created = ModelClass.objects.get_or_create(
             source_currency=validated_data['source_currency'],

@@ -1,4 +1,7 @@
 from django.shortcuts import render
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg.views import get_schema_view
 from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
 from core.models import CurrencyChangeRequest
@@ -16,6 +19,17 @@ from core.services.utils import Utils
 @permission_classes([IsAuthenticated])
 class CurrencyConverterView(ViewSet):
 
+    @swagger_auto_schema(
+        operation_description="convert from source_currency to target_currency",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'source_currency': openapi.Schema(type=openapi.TYPE_STRING, description="currency option ['usd', 'eur', 'egp']"),
+                'target_currency': openapi.Schema(type=openapi.TYPE_STRING, description="currency option ['usd', 'eur', 'egp']"),
+                'value': openapi.Schema(type=openapi.TYPE_NUMBER, description="value to convert")
+            }
+        ),
+    )
     @action(detail=True, methods=['post'])
     def convert_currency(self, request):
         available_currency = ['usd', 'eur', 'egp']
